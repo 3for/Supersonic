@@ -16,7 +16,7 @@ features = ["std", "derive"]
 
 [dependencies.classygroup]
 optional = true
-git = "https://github.com/stichtingorganism/classygroup"
+git = "https://github.com/3for/classygroup"
 
 
 [dependencies.class_group]
@@ -24,7 +24,7 @@ optional = true
 git = "https://github.com/ZenGo-X/class"
 
 [features]
-default = ["class_group_zen"]
+default = ["class_group_sti"]
 class_group_sti = ["serde", "classygroup"]
 class_group_zen = ["class_group"]
 rsa_group = []
