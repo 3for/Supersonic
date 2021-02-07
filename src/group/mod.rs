@@ -5,6 +5,8 @@ use rug::Integer;
 use std::hash::Hash;
 use std::fmt::Debug;
 
+mod classgroupsti;
+
 /// [Follow the idea from `https://github.com/cambrian/accumulator/src/group/mod.rs`]
 /// A mathematical group.
 ///
@@ -46,16 +48,16 @@ pub trait Group: Clone + Debug + Eq + Hash + TypeRep + Send + Sync {
   fn exp_(_rep: &Self::Rep, a: &Self::Elem, n: &Integer) -> Option<Self::Elem> {
     let (mut val, mut a, mut n) = {
       if *n < int(0) {
-        (Self::id(), Self::inv(a), int(-n))
+        (Self::idnew(), Self::invnew(a), int(-n))
       } else {
-        (Self::id(), a.clone(), n.clone())
+        (Self::idnew(), a.clone(), n.clone())
       }
     };
     while n > int(0) {
       if n.is_odd() {
-        val = Self::op(&val, &a);
+        val = Self::opnew(&val, &a);
       }
-      a = Self::op(&a, &a);
+      a = Self::opnew(&a, &a);
       n >>= 1;
     }
     Some(val)
@@ -69,12 +71,12 @@ pub trait Group: Clone + Debug + Eq + Hash + TypeRep + Send + Sync {
   // -------------------
 
   /// Returns the identity element of the group.
-  fn id() -> Self::Elem {
+  fn idnew() -> Self::Elem {
     Self::id_(Self::rep())
   }
 
   /// Applies the group operation to elements `a` and `b` and returns the result.
-  fn op(a: &Self::Elem, b: &Self::Elem) -> Self::Elem {
+  fn opnew(a: &Self::Elem, b: &Self::Elem) -> Self::Elem {
     Self::op_(Self::rep(), a, b)
   }
 
@@ -84,7 +86,7 @@ pub trait Group: Clone + Debug + Eq + Hash + TypeRep + Send + Sync {
   }
 
   /// Returns the group inverse of `a`.
-  fn inv(a: &Self::Elem) -> Self::Elem {
+  fn invnew(a: &Self::Elem) -> Self::Elem {
     Self::inv_(Self::rep(), a)
   }
 }
@@ -95,7 +97,7 @@ pub trait Group: Clone + Debug + Eq + Hash + TypeRep + Send + Sync {
 #[allow(clippy::module_name_repetitions)]
 pub trait UnknownOrderGroup: Group {
   /// Returns an element of unknown order in the group.
-  fn unknown_order_elem() -> Self::Elem {
+  fn unknown_order_elemnew() -> Self::Elem {
     Self::unknown_order_elem_(Self::rep())
   }
 
@@ -106,7 +108,7 @@ pub trait UnknownOrderGroup: Group {
 /// Like `From<T>`, but implemented on the `Group` instead of the element type.
 pub trait ElemFrom<T>: Group {
   /// Returns a group element from an initial value.
-  fn elem(val: T) -> Self::Elem;
+  fn elem_(val: T) -> Self::Elem;
 }
 
 /// Computes the product of `alpha_i ^ (p(x) / x_i)`, where `i` is an index into the `alphas` and
@@ -125,5 +127,5 @@ pub fn multi_exp<G: Group>(alphas: &[G::Elem], x: &[Integer]) -> G::Elem {
   let x_star_r = x_r.iter().product();
   let l = multi_exp::<G>(alpha_l, x_l);
   let r = multi_exp::<G>(alpha_r, x_r);
-  G::op(&G::exp(&l, &x_star_r).unwrap(), &G::exp(&r, &x_star_l).unwrap())
+  G::opnew(&G::exp(&l, &x_star_r).unwrap(), &G::exp(&r, &x_star_l).unwrap())
 }
