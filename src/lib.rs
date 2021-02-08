@@ -1,6 +1,8 @@
 
 pub mod util;
-pub mod group;
+pub mod groups;
+pub mod primitives;
+
 
 #[cfg(feature = "class_group")]
 extern crate classygroup;
