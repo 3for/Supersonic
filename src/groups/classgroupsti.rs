@@ -19,6 +19,7 @@ impl TypeRep for ClassyGroup {
   }
 }
 
+
 impl Group for ClassyGroup {
   type Elem = ClassElem;
 
@@ -65,7 +66,11 @@ impl HashPrime for ClassyGroup {
         hash::hash_to_prime_Mpz(t)
     }
 
-    fn pick_prime_Integer(t: &[u8]) -> Integer {
+    fn pick_prime_bytes(t: &[u8]) -> [u8; 32] {
+        hash::hash_to_prime_bytes(t)
+    }
+
+    fn pick_prime_integer(t: &[u8]) -> Integer {
         hash::hash_to_prime(t)
     }
 }

@@ -113,7 +113,8 @@ pub trait ElemFrom<T>: Group {
 
 pub trait HashPrime: Group {
   fn pick_prime_mpz(t: &[u8]) -> Self::Rep;
-  fn pick_prime_Integer(t: &[u8]) -> Integer;
+  fn pick_prime_integer(t: &[u8]) -> Integer;
+  fn pick_prime_bytes(t: &[u8]) -> [u8; 32];
 }
 
 /// Computes the product of `alpha_i ^ (p(x) / x_i)`, where `i` is an index into the `alphas` and

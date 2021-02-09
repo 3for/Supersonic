@@ -1,6 +1,7 @@
 use crate::groups::{UnknownOrderGroup, HashPrime, ElemFrom};
 use rand::Rng;
 use rug::Integer;
+use std::marker::PhantomData;
 
 /// [Follow the idea in `https://github.com/ZenGo-X/class/src/primitives`]
 /// AND [Follow the idea in `https://github.com/dignifiedquire/rust-accumulator/src/accumulator`]
@@ -16,7 +17,8 @@ use rug::Integer;
 /// Eval_verify: NI verifier for eval_proof.
 
 #[derive(PartialEq, Eq, Clone, Debug)]
-pub struct PP<G: UnknownOrderGroup> {
+pub struct PP<G: UnknownOrderGroup, T> {
+    phantom: PhantomData<*const T>,
     pub disc: G::Elem,
     pub g: G::Elem,
     pub q: G::Elem,
@@ -25,35 +27,36 @@ pub struct PP<G: UnknownOrderGroup> {
 
 
 #[derive(PartialEq, Eq, Clone, Debug)]
-pub struct PolyComm<G: UnknownOrderGroup> {
+pub struct PolyComm<G: UnknownOrderGroup, T> {
+    phantom: PhantomData<T>,
     pub c: G::Elem,
 }
 
-/*mpl<G: ElemFrom<(Integer, Integer, Integer)> + HashPrime + UnknownOrderGroup> PolyComm<G> {
+impl<G:  ElemFrom<(Integer, Integer, Integer)> + HashPrime + UnknownOrderGroup, T> PolyComm<G, T> {    
     // `d_max` is the max degree of the polynomial
-    pub fn KeyGen_RSAsetup( _lambda: usize, d_max: usize) -> PP<G>
+    pub fn setup( _lambda: usize, d_max: usize) -> PP<G, T>
     {
         let disc = G::unknown_order_elemnew();
 
         let g = G::unknown_order_elemnew();
 
         let mut random_bytes = rand::thread_rng().gen::<[u8; 32]>();
-        let a = G::pick_prime_mpz(&random_bytes);
+        let a = G::pick_prime_integer(&random_bytes);
         random_bytes = rand::thread_rng().gen::<[u8; 32]>();
-        let b = G::pick_prime_mpz(&random_bytes);
+        let b = G::pick_prime_integer(&random_bytes);
         random_bytes = rand::thread_rng().gen::<[u8; 32]>();
-        let c = G::pick_prime_mpz(&random_bytes);
+        let c = G::pick_prime_integer(&random_bytes);
 
         let p = G::elemnew((a, b, c));
 
         let bound =  2 * (((d_max + 1) as f64).log2() as usize) + 1;
         let q = G::exp(&p, &Integer::from(bound)).unwrap();
-        PP::<G>  {disc, g, p, q}
+        PP::<G, T>  { phantom: PhantomData, disc, g, p, q}
 
     }
-}*/
+}
 
-/*#[cfg(test)]
+#[cfg(test)]
 mod tests {
     use super::*;
     use crate::groups::classgroupsti::ClassyGroup;
@@ -62,7 +65,8 @@ mod tests {
     fn test_poly_setup() {
         let d_max = 2;
         let _lambda = 2048;
-        let pp = PolyComm::KeyGen_RSAsetup::<ClassyGroup>(_lambda, d_max);
+        let _a = ClassyGroup::unknown_order_elem();
+        let _pp = PolyComm::<ClassyGroup, Integer>::setup(_lambda, d_max);
+        
     }
 }
-*/
