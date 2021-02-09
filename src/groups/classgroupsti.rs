@@ -1,19 +1,20 @@
 
 use crate::util::{TypeRep};
-use super::{Group, UnknownOrderGroup, ElemFrom};
+use super::{Group, UnknownOrderGroup, ElemFrom, HashPrime};
 use rug::Integer;
 
-use classygroup::{
+pub use classygroup::{
     ClassElem,
     ClassGroup as ClassyGroup,
     group::CLASS_GROUP_DISCRIMINANT,
     num::Mpz,
+    hash,
 };
+
 
 impl TypeRep for ClassyGroup {
   type Rep = Mpz;
   fn rep() -> &'static Self::Rep {
-    println!("zyd 7777");
     &CLASS_GROUP_DISCRIMINANT
   }
 }
@@ -23,31 +24,26 @@ impl Group for ClassyGroup {
 
   #[allow(non_snake_case)]
   fn op_(_: &Mpz, x: &ClassElem, y: &ClassElem) -> ClassElem {
-    println!("zyd 6666");
     ClassyGroup::op(x, y)
   }
 
   // Constructs the reduced element directly instead of using `Self::Elem()`.
   fn id_(_: &Mpz) -> ClassElem {
-    println!("zyd 5555");
     return ClassyGroup::id();
   }
 
   // Constructs the inverse directly instead of using `Self::Elem()`.
   fn inv_(_: &Mpz, x: &ClassElem) -> ClassElem {
-    println!("zyd 4444");
     ClassyGroup::inv(x)
   }
 
   fn exp_(_: &Mpz, a: &ClassElem, n: &Integer) -> Option<ClassElem> {
-    println!("zyd 3333");
     Some(ClassyGroup::pow(a, n))
   }
 }
 
 impl UnknownOrderGroup for ClassyGroup {
   fn unknown_order_elem_(_: &Mpz) -> ClassElem {
-    println!("zyd 2222");
     ClassyGroup::unknown_order_elem()
   }
 }
@@ -59,10 +55,19 @@ where
   Mpz: From<B>,
   Mpz: From<C>,
 {
-  fn elem_(abc: (A, B, C)) -> ClassElem {
-    println!("zyd 1111");
+  fn elemnew(abc: (A, B, C)) -> ClassElem {
     ClassyGroup::elem((Mpz::from(abc.0), Mpz::from(abc.1), Mpz::from(abc.2)))
   }
+}
+
+impl HashPrime for ClassyGroup {
+    fn pick_prime_mpz(t: &[u8]) -> Mpz {
+        hash::hash_to_prime_Mpz(t)
+    }
+
+    fn pick_prime_Integer(t: &[u8]) -> Integer {
+        hash::hash_to_prime(t)
+    }
 }
 
 
@@ -86,7 +91,7 @@ mod tests {
     #[should_panic]
     #[test]
     fn test_bad_elem() {
-        let _ = ClassyGroup::elem_((Mpz::from(1), Mpz::from(2), Mpz::from(3)));
+        let _ = ClassyGroup::elemnew((Mpz::from(1), Mpz::from(2), Mpz::from(3)));
     }
 
     #[test]
@@ -117,8 +122,8 @@ mod tests {
     )
     .unwrap();
 
-        let reduced_elem = ClassyGroup::elem_((a1, b1, c1));
-        let also_reduced_elem = ClassyGroup::elem_((a2, b2, c2));
+        let reduced_elem = ClassyGroup::elemnew((a1, b1, c1));
+        let also_reduced_elem = ClassyGroup::elemnew((a2, b2, c2));
         assert_eq!(reduced_elem, also_reduced_elem);
     }
 
@@ -319,6 +324,18 @@ mod tests {
 
             assert_eq!(g, base);
         }
+    }
+
+    #[test]
+    fn test_hash_to_prime_mpz() {
+        let b_1 = b"boom i got ur boyfriend";
+        let b_2 = b"boom i got ur boyfriene";
+        assert_ne!(b_1, b_2);
+        let m_1 = ClassyGroup::pick_prime_mpz(b_1); //Mpz
+        let m_2 = ClassyGroup::pick_prime_mpz(b_2);
+        assert_ne!(m_1, m_2);
+        assert!(m_1.is_prime(50)); // resonable value is between 15 and 50.
+        assert!(m_2.is_prime(50));
     }
 
 

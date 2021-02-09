@@ -5,7 +5,7 @@ use rug::Integer;
 use std::hash::Hash;
 use std::fmt::Debug;
 
-mod classgroupsti;
+pub mod classgroupsti;
 
 /// [Follow the idea from `https://github.com/cambrian/accumulator/src/group/mod.rs`]
 /// A mathematical group.
@@ -108,7 +108,12 @@ pub trait UnknownOrderGroup: Group {
 /// Like `From<T>`, but implemented on the `Group` instead of the element type.
 pub trait ElemFrom<T>: Group {
   /// Returns a group element from an initial value.
-  fn elem_(val: T) -> Self::Elem;
+  fn elemnew(val: T) -> Self::Elem;
+}
+
+pub trait HashPrime: Group {
+  fn pick_prime_mpz(t: &[u8]) -> Self::Rep;
+  fn pick_prime_Integer(t: &[u8]) -> Integer;
 }
 
 /// Computes the product of `alpha_i ^ (p(x) / x_i)`, where `i` is an index into the `alphas` and
